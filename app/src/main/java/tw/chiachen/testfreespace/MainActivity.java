@@ -16,6 +16,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 	public static final String TAG="MainActivity";
 	public TextView InternalPath, InternalSpace, ExternalPath, ExternalSpace;
+	FreeSpace freeSpace = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
@@ -35,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
 		InternalPath.setText (getInternalPath());
 	}
 	public void showInternalSpace(View v){
-		InternalSpace.setText(getInternalSpace ());
+		freeSpace = new InternalStorage ();
+		InternalSpace.setText(freeSpace.getAvailableSpace ());
 	}
 
 	public void showExternalPath(View v){
@@ -43,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void showExternalSpace(View view) {
-		ExternalSpace.setText (getExternalSpace ());
+		freeSpace = new ExternalStorage ();
+		ExternalSpace.setText (freeSpace.getAvailableSpace ());
 	}
 
 
@@ -60,74 +63,13 @@ public class MainActivity extends AppCompatActivity {
 		return freeSpace + " / " + totalSpace;
 	}
 	public String getExternalPath(){
-		File path = new File (getSDLocation ());
+		File path = new File (Util.getSDLocation ());
 		showLog (path.getAbsolutePath ());
 		return path.getAbsolutePath ();
-	}
-
-	public String getExternalSpace(){
-		File path = new File (getSDLocation ());
-		String freeSpace=humanReadableByteCount(path.getFreeSpace ());
-		String totalSpace=humanReadableByteCount(path.getTotalSpace ());
-		showLog (freeSpace+ " / "+totalSpace);
-		return freeSpace + " / " + totalSpace;
 	}
 
 
 	public void showLog(String log) {
 		Log.e (TAG, log);
-	}
-	public static String getSDLocation(){
-		String sdfolder=null;
-		HashSet<String> sdpaths=getExternalMounts ();
-		if (!sdpaths.isEmpty ())
-			for (String sdpath:sdpaths) {
-				sdfolder = sdpath.substring (sdpath.lastIndexOf ("/") + 1);
-				sdfolder="/storage/"+sdfolder;
-			}
-		return sdfolder;
-	}
-
-	public static HashSet<String> getExternalMounts() {
-		final HashSet<String> out = new HashSet<String> ();
-		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
-		String s = "";
-		try {
-			final Process process = new ProcessBuilder ().command ("mount")
-					.redirectErrorStream (true).start ();
-			process.waitFor ();
-			final InputStream is = process.getInputStream ();
-			final byte[] buffer = new byte[1024];
-			while (is.read (buffer) != -1) {
-				s = s + new String (buffer);
-			}
-			is.close ();
-		} catch (final Exception e) {
-			e.printStackTrace ();
-		}
-		// parse output
-		final String[] lines = s.split ("\n");
-		for (String line : lines) {
-			if (!line.toLowerCase (Locale.US).contains ("asec")) {
-				if (line.matches (reg)) {
-					String[] parts = line.split (" ");
-					for (String part : parts) {
-						if (part.startsWith ("/"))
-							if (!part.toLowerCase (Locale.US).contains ("vold"))
-								out.add (part);
-					}
-				}
-			}
-		}
-		return out;
-	}
-
-	public static String humanReadableByteCount(long bytes) {
-		int unit = 1024;
-		if (bytes < unit) return bytes + " B";
-		int exp = (int) (Math.log(bytes) / Math.log(unit));
-//		String pre ="KMGTPE".charAt(exp-1) +"i";
-		String pre ="KMGTPE".charAt(exp-1)+"" ;
-		return String.format("%.3f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 }
