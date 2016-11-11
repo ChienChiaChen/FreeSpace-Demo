@@ -16,7 +16,7 @@ public class InternalStorage implements FreeSpace {
 
 	@Override
 	public String getAvailableSpace() {
-		return Util.humanReadableByteCount(getFile ().getFreeSpace ());
+		return Util.humanReadableByteCount(getFile ().getUsableSpace ());
 	}
 
 	@Override

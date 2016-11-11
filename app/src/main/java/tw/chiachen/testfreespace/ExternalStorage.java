@@ -13,7 +13,9 @@ public class ExternalStorage implements FreeSpace{
 
 	@Override
 	public String getAvailableSpace() {
-		String freeSpace=Util.humanReadableByteCount(getFile().getFreeSpace ());
+//		String freeSpace=Util.humanReadableByteCount(getFile().getUsableSpace ());
+		String freeSpace=Util.humanReadableByteCount(20000000);
+
 		return freeSpace;
 	}
 

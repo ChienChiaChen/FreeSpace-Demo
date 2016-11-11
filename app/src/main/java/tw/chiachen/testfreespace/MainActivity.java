@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 	public String getInternalPath(){
-		File path = Environment.getDataDirectory();
+		File path = Environment.getExternalStorageDirectory();
 		showLog (path.getAbsolutePath ());
 		return path.getAbsolutePath ();
 	}
